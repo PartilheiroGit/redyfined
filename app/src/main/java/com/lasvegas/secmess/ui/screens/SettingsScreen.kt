@@ -482,9 +482,10 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
-                            // ONE QR: the server arms auto-approval when it mints this invite. The
-                            // camera scan installs the bootstrap; the full app's first connection is
-                            // authorized automatically and linked to the admin. No second QR.
+                            // ONE QR: the server arms provisional entry when it mints this invite.
+                            // The scan installs the bootstrap; the full app's first connection enters
+                            // the download network and is linked to the admin. It cannot chat until
+                            // the admin presses AUTHORIZE (server dashboard or this app).
                             val relay = RelayService.relayState.value
                             if (relay == null) {
                                 Toast.makeText(context, "Not connected — try again in a moment", Toast.LENGTH_SHORT).show()
@@ -603,8 +604,9 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("Sub-Admin Controls", style = MaterialTheme.typography.labelLarge)
 
-                    // One QR: the recruit installs and is authorized automatically, linked to the
-                    // admin AND to this sub-admin (the inviting owner).
+                    // One QR: the recruit installs and enters the download network linked to the
+                    // admin AND to this sub-admin (the inviting owner). The admin still has to
+                    // press AUTHORIZE before the recruit can communicate.
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
@@ -836,16 +838,16 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     val isLink = showInviteDialog?.startsWith("http") == true
                     Text(
-                        if (isLink) "Scan com a câmara do telefone (fora da app). Instala e autoriza sozinho — sem segundo QR e sem aprovação manual."
+                        if (isLink) "Scan com a câmara do telefone (fora da app). Instala e entra na rede de download; fica ligado ao admin. Só comunica depois de o admin carregar em AUTHORIZE."
                         else "Scan this code to join the network.",
                         textAlign = TextAlign.Center, style = MaterialTheme.typography.bodySmall
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         if (tier == UserTier.REFERRER)
-                            "Convite de sub-admin: o novo user fica ligado ao admin e a ti."
+                            "Convite de sub-admin: fica ligado ao admin e a ti. A autorização final é sempre do admin."
                         else if (tier == UserTier.MASTER)
-                            "Convite de admin: o novo user fica ligado só ao admin."
+                            "Convite de admin: fica ligado só ao admin. A autorização final é tua (AUTHORIZE)."
                         else "",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelSmall,

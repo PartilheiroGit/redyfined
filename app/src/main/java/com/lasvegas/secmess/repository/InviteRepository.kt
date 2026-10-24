@@ -6,8 +6,10 @@ import kotlinx.coroutines.flow.asStateFlow
 /**
  * Carries the invite URL the server mints back to the admin/sub-admin UI.
  * The phone asks the relay (mint_invite); the server replies (invite_url) with the public
- * bootstrap URL to show as a QR. Minting also arms auto-approval on the relay, so this ONE
- * QR installs and authorizes the recruit (no second QR). Transient; nothing persisted.
+ * bootstrap URL to show as a QR. Minting arms provisional entry on the relay: this ONE QR
+ * installs, enters the download network and links the recruit to the inviter (admin, or
+ * admin + sub-admin). The admin still presses AUTHORIZE before the recruit can communicate.
+ * Transient; nothing persisted.
  */
 object InviteRepository {
     private val _url = MutableStateFlow<String?>(null)
