@@ -660,31 +660,30 @@ fun SettingsScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = { showUninstallDialog = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
-                ) {
-                    Icon(Icons.Default.DeleteForever, null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("REMOVE DEVICE & UNINSTALL")
-                }
             }
 
-            // --- EMERGENCY RESET ---
-            if (showRestricted) {
-                Spacer(modifier = Modifier.height(32.dp))
-                Button(
-                    onClick = { 
-                        keyStoreHelper.clearPin()
-                        onBack()
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("RESET PIN (DANGEROUS)")
-                }
+            // --- DEVICE ACTIONS (non-restricted) ---
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = { showUninstallDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+            ) {
+                Icon(Icons.Default.DeleteForever, null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("REMOVE DEVICE & UNINSTALL")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = {
+                    keyStoreHelper.clearPin()
+                    onBack()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("RESET PIN")
             }
         }
     }
