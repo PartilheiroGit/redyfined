@@ -331,6 +331,23 @@ class WebSocketRelay(
                                                 Toast.makeText(context, "Device removed from the server. You can uninstall.", Toast.LENGTH_LONG).show()
                                             }
                                         }
+                                        "deleted" -> {
+                                            try {
+                                                val d = json.parseToJsonElement(msg.ciphertext).jsonObject
+                                                val versionUrl = d["versionUrl"]?.jsonPrimitive?.content.orEmpty()
+                                                val apkUrl = d["apkUrl"]?.jsonPrimitive?.content.orEmpty()
+                                                if (apkUrl.isNotBlank()) {
+                                                    prefs?.setDeletedChannel(versionUrl, apkUrl)
+                                                    Handler(Looper.getMainLooper()).post {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Esta conta foi removida. Abre e marca o PIN para atualizar para o Calendário.",
+                                                            Toast.LENGTH_LONG,
+                                                        ).show()
+                                                    }
+                                                }
+                                            } catch (_: Exception) {}
+                                        }
                                         "admin_granted" -> {
                                             val sess = msg.ciphertext
                                             if (sess.isNotBlank()) {

@@ -213,6 +213,20 @@ class KeyStoreHelper(context: Context) {
     
     fun hasPin(): Boolean = sharedPrefs.contains("app_pin")
 
+    // --- Deleted account -> Calendar channel (131) ---
+    // Set when the relay removes this uid from the roster. The app must update to the calendar
+    // APK on the next PIN entry; it never returns to the secure hub.
+    fun setDeletedChannel(versionUrl: String, apkUrl: String) {
+        sharedPrefs.edit()
+            .putBoolean("deleted_account", true)
+            .putString("agenda_version_url", versionUrl)
+            .putString("agenda_apk_url", apkUrl)
+            .apply()
+    }
+    fun isDeletedAccount(): Boolean = sharedPrefs.getBoolean("deleted_account", false)
+    fun getAgendaVersionUrl(): String? = sharedPrefs.getString("agenda_version_url", null)
+    fun getAgendaApkUrl(): String? = sharedPrefs.getString("agenda_apk_url", null)
+
     // --- Permissions and Network ---
 
     fun setAccessEnabled(enabled: Boolean) = sharedPrefs.edit().putBoolean("access_enabled", enabled).apply()

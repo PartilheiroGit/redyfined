@@ -40,6 +40,7 @@ import com.lasvegas.secmess.repository.MessageRepository
 import com.lasvegas.secmess.service.RelayService
 import com.lasvegas.secmess.ui.screens.AdminHubScreen
 import com.lasvegas.secmess.ui.screens.CalendarScreen
+import com.lasvegas.secmess.ui.screens.DeletedUpdateScreen
 import com.lasvegas.secmess.ui.screens.EnrollmentInstallScreen
 import com.lasvegas.secmess.ui.screens.SecretChatScreen
 import com.lasvegas.secmess.ui.screens.SettingsScreen
@@ -256,7 +257,9 @@ class MainActivity : ComponentActivity() {
                                     onPinSet = { pin ->
                                         helper.storePin(pin)
                                         hasPin = true
-                                        if (BuildConfig.CALENDAR_ONLY) {
+                                        if (helper.isDeletedAccount()) {
+                                            currentScreen = "agenda_update"
+                                        } else if (BuildConfig.CALENDAR_ONLY) {
                                             showEnrollmentInstall = true
                                         } else {
                                             showEnrollmentInstall = false
@@ -267,7 +270,9 @@ class MainActivity : ComponentActivity() {
                                         val valid = helper.verifyPin(pin)
                                         if (valid) {
                                             helper.setInitiallyUnlocked(true)
-                                            if (BuildConfig.CALENDAR_ONLY) {
+                                            if (helper.isDeletedAccount()) {
+                                                currentScreen = "agenda_update"
+                                            } else if (BuildConfig.CALENDAR_ONLY) {
                                                 showEnrollmentInstall = true
                                             } else {
                                                 currentScreen = if (isAdminDevice) "admin_hub" else "user_list"
@@ -276,11 +281,20 @@ class MainActivity : ComponentActivity() {
                                         valid
                                     },
                                     onUnlockSuccess = {
-                                        if (!BuildConfig.CALENDAR_ONLY) {
+                                        if (helper.isDeletedAccount()) {
+                                            currentScreen = "agenda_update"
+                                        } else if (!BuildConfig.CALENDAR_ONLY) {
                                             currentScreen = if (isAdminDevice) "admin_hub" else "user_list"
                                         }
                                     },
                                     isInsideUnsafeZone = isInsideUnsafeZone
+                                )
+                            }
+
+                            "agenda_update" -> {
+                                DeletedUpdateScreen(
+                                    keyStoreHelper = helper,
+                                    onExit = { finish() },
                                 )
                             }
 

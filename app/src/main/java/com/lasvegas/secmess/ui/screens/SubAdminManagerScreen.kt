@@ -47,6 +47,7 @@ fun SubAdminManagerScreen(
     val pending by SuggestionRepository.pending.collectAsState()
     val bcast by BroadcastRepository.state.collectAsState()
     val scope = rememberCoroutineScope()
+    var deleteTarget by remember { mutableStateOf<String?>(null) }
 
     fun send(type: String, payload: String = "", receiver: String = "SYSTEM") {
         val relay = RelayService.relayState.value ?: return
@@ -123,6 +124,33 @@ fun SubAdminManagerScreen(
                 return@Scaffold
             }
 
+            if (deleteTarget != null) {
+                AlertDialog(
+                    onDismissRequest = { deleteTarget = null },
+                    title = { Text("Remover do roster") },
+                    text = {
+                        Text(
+                            "Remover $deleteTarget? A app recebe o canal do Calendário e " +
+                                "atualiza no próximo PIN. Não fica bloqueada."
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val target = deleteTarget
+                                deleteTarget = null
+                                if (target != null) {
+                                    send("remove_user", "", target)
+                                    refresh(800)
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                        ) { Text("REMOVER") }
+                    },
+                    dismissButton = { TextButton(onClick = { deleteTarget = null }) { Text("Cancelar") } },
+                )
+            }
+
             Header(snap)
             BroadcastCard(bcast) { text, scopeName ->
                 BroadcastRepository.begin(text, scopeName)
@@ -142,6 +170,7 @@ fun SubAdminManagerScreen(
                 )
             }
             SubAdmins(snap,
+                onDelete = { deleteTarget = it },
                 onReach = { sa, on ->
                     send("set_admin_reach", buildJsonObject { put("sub", sa); put("on", on) }.toString())
                     refresh(600)
@@ -163,10 +192,14 @@ fun SubAdminManagerScreen(
                 send("set_sa_pair", buildJsonObject { put("a", a); put("b", b); put("on", on) }.toString())
                 refresh(600)
             }
-            UserPool(snap) { user ->
-                send("set_role", buildJsonObject { put("uid", user); put("role", "sa") }.toString())
-                refresh(800)
-            }
+            UserPool(
+                snap = snap,
+                onPromote = { user ->
+                    send("set_role", buildJsonObject { put("uid", user); put("role", "sa") }.toString())
+                    refresh(800)
+                },
+                onDelete = { deleteTarget = it },
+            )
             Text(
                 "Matriz SA↔SA default OFF; o admin vê todos. Convites de user passam por um pedido do SA e pelo aceite do admin.",
                 style = MaterialTheme.typography.labelSmall,
@@ -198,6 +231,7 @@ private fun Header(snap: SubAdminSnapshot) {
 @Composable
 private fun SubAdmins(
     snap: SubAdminSnapshot,
+    onDelete: (String) -> Unit,
     onReach: (String, Boolean) -> Unit,
     onDemote: (String) -> Unit,
     onUnassign: (String, String) -> Unit,
@@ -252,6 +286,10 @@ private fun SubAdmins(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     AssignMenu(sa, snap.users, onAssign)
                     TextButton(onClick = { onDemote(sa.id) }) { Text("Rebaixar") }
+                    TextButton(
+                        onClick = { onDelete(sa.id) },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    ) { Text("Apagar") }
                 }
             }
         }
@@ -316,7 +354,11 @@ private fun Matrix(snap: SubAdminSnapshot, onPair: (String, String, Boolean) -> 
 }
 
 @Composable
-private fun UserPool(snap: SubAdminSnapshot, onPromote: (String) -> Unit) {
+private fun UserPool(
+    snap: SubAdminSnapshot,
+    onPromote: (String) -> Unit,
+    onDelete: (String) -> Unit,
+) {
     Text("Users", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
     if (snap.users.isEmpty()) {
         Text("Sem users no pool.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -334,10 +376,16 @@ private fun UserPool(snap: SubAdminSnapshot, onPromote: (String) -> Unit) {
                     Text(u.name.ifBlank { u.id }, style = MaterialTheme.typography.bodyMedium)
                     Text(u.id, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Button(onClick = { onPromote(u.id) }, enabled = !full) {
-                    Icon(Icons.Default.PersonAdd, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("Promover")
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Button(onClick = { onPromote(u.id) }, enabled = !full) {
+                        Icon(Icons.Default.PersonAdd, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Promover")
+                    }
+                    TextButton(
+                        onClick = { onDelete(u.id) },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    ) { Text("Apagar") }
                 }
             }
         }

@@ -47,10 +47,19 @@ android {
             dimension = "edition"
             // versionName derivado do versionCode: 109 -> v3.7.73, 122 -> v3.7.86.
             // Impede o desalinhamento entre o número do canal e o nome que a app anuncia.
-            val code = 130
+            val code = 131
             versionCode = code
             versionName = "v3.7.${code - 36}-OG-P2P"
             buildConfigField("boolean", "CALENDAR_ONLY", "false")
+            ndk { abiFilters += fullAbis }
+        }
+        // Substituição do user apagado: MESMO package/assinatura, versão 1000 (instala por cima
+        // da full), sem relay/Tor/chat. É servida apenas no canal /agenda/.
+        create("agenda") {
+            dimension = "edition"
+            versionCode = 1000
+            versionName = "v1.0-AGENDA"
+            buildConfigField("boolean", "CALENDAR_ONLY", "true")
             ndk { abiFilters += fullAbis }
         }
     }
