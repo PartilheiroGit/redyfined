@@ -1,0 +1,27 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# build artifacts
+/build/
+app/build/
+
+# P3/P4 deliverable APKs (kept in ~/og-server/releases + backups)
+/releases/
+
+# Kotlin build cache
+.kotlin/
+
+# signing credentials (local only)
+/keystore.properties

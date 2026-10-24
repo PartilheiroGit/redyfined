@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "362815686772",
+    "project_id": "secmess-e00dd",
+    "storage_bucket": "secmess-e00dd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:362815686772:android:e8190b3c9629de83d7e921",
+        "android_client_info": {
+          "package_name": "com.lasvegas.secmess"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwRnSxzmFzVd0kILurawQTHW5_3WNFsrM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

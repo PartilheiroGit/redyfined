@@ -1,0 +1,5 @@
+- [/] Revert WebSocketRelay to stable network configuration
+- [ ] Implement First-Use PIN setup (Long-press calendar to set)
+- [ ] Secure Invitation QR codes (Obfuscate/Encrypt payload)
+- [ ] VPN Compatibility Check (Rely on OS DNS)
+- [ ] General Project Cleanup and State Check

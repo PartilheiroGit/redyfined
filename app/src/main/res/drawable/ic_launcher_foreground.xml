@@ -1,0 +1,80 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 1. Dominant OG Initials (Liquid Gold) -->
+    <!-- Large O -->
+    <path
+        android:pathData="M30,30 C20,30 20,50 30,50 C40,50 40,30 30,30 Z M30,35 C35,35 35,45 30,45 C25,45 25,35 30,35 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="20"
+                android:startY="30"
+                android:endX="40"
+                android:endY="50"
+                android:type="linear">
+                <item android:color="#D4AF37" android:offset="0" />
+                <item android:color="#FCF6BA" android:offset="0.5" />
+                <item android:color="#B8860B" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Large G -->
+    <path
+        android:pathData="M70,30 C60,30 60,50 70,50 L75,50 L75,42 L70,42 L70,45 L72,45 L72,48 L68,48 C65,48 65,35 70,35 C75,35 75,40 75,40 L80,40 C80,30 70,30 70,30 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="60"
+                android:startY="30"
+                android:endX="80"
+                android:endY="50"
+                android:type="linear">
+                <item android:color="#D4AF37" android:offset="0" />
+                <item android:color="#FCF6BA" android:offset="0.5" />
+                <item android:color="#B8860B" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Small -n and -o -->
+    <path android:fillColor="#D4AF37" android:pathData="M42,45 L48,45 L48,47 L42,47 Z" />
+    <path android:fillColor="#D4AF37" android:pathData="M82,45 L88,45 L88,47 L82,47 Z" />
+
+    <!-- 2. The Black Base for Banner -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M15,60 L93,60 L93,85 L15,85 Z" />
+    <path
+        android:fillColor="#33FFFFFF"
+        android:pathData="M15,60 L93,60 L93,61 L15,61 Z M15,84 L93,84 L93,85 L15,85 Z" />
+
+    <!-- 3. The "Flag" Banner (Scarlet Blood) -->
+    <path
+        android:pathData="M20,65 L88,65 L88,80 L20,80 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="20"
+                android:startY="65"
+                android:endX="88"
+                android:endY="80"
+                android:type="linear">
+                <item android:color="#FFFF2400" android:offset="0" />
+                <item android:color="#8B0000" android:offset="0.5" />
+                <item android:color="#FFFF2400" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Shimmer detail on banner -->
+    <path
+        android:fillColor="#22FCF6BA"
+        android:pathData="M40,65 L55,65 L45,80 L30,80 Z" />
+
+    <!-- 4. Falling sides of the flag -->
+    <path android:fillColor="#600000" android:pathData="M15,60 L20,65 L20,80 L15,75 Z" />
+    <path android:fillColor="#600000" android:pathData="M93,60 L88,65 L88,80 L93,75 Z" />
+</vector>

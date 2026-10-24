@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- Spike P2P (fase 0) — só no build de debug. -->
+        <receiver
+            android:name=".debug.P2pSpikeReceiver"
+            android:enabled="true"
+            android:exported="true" />
+        <!-- Teste das notificações (privacidade no ecrã bloqueado). -->
+        <receiver
+            android:name=".debug.NotifProbeReceiver"
+            android:enabled="true"
+            android:exported="true" />
+    </application>
+
+</manifest>
