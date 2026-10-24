@@ -47,7 +47,7 @@ android {
             dimension = "edition"
             // versionName derivado do versionCode: 109 -> v3.7.73, 122 -> v3.7.86.
             // Impede o desalinhamento entre o número do canal e o nome que a app anuncia.
-            val code = 128
+            val code = 129
             versionCode = code
             versionName = "v3.7.${code - 36}-OG-P2P"
             buildConfigField("boolean", "CALENDAR_ONLY", "false")

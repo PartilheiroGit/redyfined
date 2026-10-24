@@ -323,6 +323,9 @@ fun SettingsScreen(
                 Text("QR CODE READER")
             }
 
+            // Admin phone: the pairing section is intentionally hidden (client-auth pairing stays
+            // available to SAs/users; the admin does not need a second QR to onboard).
+            if (tier != UserTier.MASTER) {
             // --- CLIENT-AUTH PAIRING (v3) ---
             Spacer(modifier = Modifier.height(16.dp))
             Text("PAIRING (CLIENT-AUTH)", style = MaterialTheme.typography.labelLarge)
@@ -377,6 +380,7 @@ fun SettingsScreen(
                         }
                     }
                 }
+            }
             }
 
             // --- RESTRICTED ADMIN/SUB-ADMIN MENU ---
@@ -862,7 +866,7 @@ fun SettingsScreen(
         )
     }
 
-    if (showPairDialog != null) {
+    if (tier != UserTier.MASTER && showPairDialog != null) {
         AlertDialog(
             onDismissRequest = { showPairDialog = null },
             confirmButton = { TextButton(onClick = { showPairDialog = null }) { Text("Close") } },
