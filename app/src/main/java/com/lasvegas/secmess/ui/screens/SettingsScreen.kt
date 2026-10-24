@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.util.Base64
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import com.journeyapps.barcodescanner.ScanContract
@@ -36,9 +35,6 @@ import com.lasvegas.secmess.crypto.PairKeyStore
 import com.lasvegas.secmess.crypto.UserTier
 import com.lasvegas.secmess.network.P2PManager
 import com.lasvegas.secmess.network.PeerDirectory
-import com.lasvegas.secmess.model.ConnectivityPolicy
-import com.lasvegas.secmess.model.Invitation
-import com.lasvegas.secmess.network.InvitationManager
 import com.lasvegas.secmess.network.UpdateManager
 import com.lasvegas.secmess.repository.BroadcastRepository
 import com.lasvegas.secmess.repository.ServerSettingsRepository
@@ -445,17 +441,24 @@ fun SettingsScreen(
                                 Text(s.note, style = MaterialTheme.typography.bodyMedium)
                                 Row(modifier = Modifier.padding(top = 6.dp)) {
                                     Button(onClick = {
-                                        val invitation = Invitation(
-                                            inviterId = myId,
-                                            publicKey = Base64.encodeToString(keyStoreHelper.getPublicKey() ?: ByteArray(0), Base64.NO_WRAP),
-                                            relayUrl = "ws://bwtj3gzbsuod72ymgxujdcmkd6hfinpslwpijlmpi5iha6mddtoteaqd.onion",
-                                            relayKey = "master-key-static",
-                                            apkUrl = "https://github.com/PartilheiroGit/redyfined/releases/download/v2/Calendario.apk",
-                                            isReferrer = false,
-                                            policy = ConnectivityPolicy.BOTH
-                                        )
-                                        showInviteDialog = InvitationManager.generateInvitationPayload(invitation)
-                                        SuggestionRepository.remove(s.id)
+                                        // Ask the server to mint the invite for this SA (owner = that
+                                        // sub-admin). The SA receives the QR and one scan installs +
+                                        // authorizes the recruit; no client-side payload is needed.
+                                        val relay = RelayService.relayState.value
+                                        if (relay == null || relay.connectionStatus.value != "Connected") {
+                                            Toast.makeText(context, "Sem ligação — tenta outra vez", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            relay.sendMessage(com.lasvegas.secmess.model.Message(
+                                                id = "mint_for_" + System.currentTimeMillis(),
+                                                senderId = myId,
+                                                receiverId = s.from,
+                                                ciphertext = "",
+                                                timestamp = System.currentTimeMillis(),
+                                                type = "mint_invite_for",
+                                            ))
+                                            SuggestionRepository.remove(s.id)
+                                            Toast.makeText(context, "Convite entregue ao sub-admin", Toast.LENGTH_SHORT).show()
+                                        }
                                     }) { Text("Authorize") }
                                     Spacer(modifier = Modifier.width(8.dp))
                                     TextButton(onClick = { SuggestionRepository.remove(s.id) }) { Text("Deny") }
@@ -479,22 +482,22 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
-                            // Ask the relay for a one-time download+authorize link; the reply (invite_url)
-                            // pops the QR. Scanned by a phone CAMERA outside the app → install → pending;
-                            // an admin must approve the device (approval is manual by design).
+                            // ONE QR: the server arms auto-approval when it mints this invite. The
+                            // camera scan installs the bootstrap; the full app's first connection is
+                            // authorized automatically and linked to the admin. No second QR.
                             val relay = RelayService.relayState.value
                             if (relay == null) {
                                 Toast.makeText(context, "Not connected — try again in a moment", Toast.LENGTH_SHORT).show()
                             } else {
                                 relay.requestInvite()
-                                Toast.makeText(context, "Generating invite link…", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "A gerar convite…", Toast.LENGTH_SHORT).show()
                             }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(Icons.Default.AddLink, null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("GENERATE MASTER INVITE")
+                        Text("GERAR CONVITE (1 QR)")
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -599,7 +602,28 @@ fun SettingsScreen(
                 if (tier == UserTier.REFERRER) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("Sub-Admin Controls", style = MaterialTheme.typography.labelLarge)
-                    
+
+                    // One QR: the recruit installs and is authorized automatically, linked to the
+                    // admin AND to this sub-admin (the inviting owner).
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            val relay = RelayService.relayState.value
+                            if (relay == null || relay.connectionStatus.value != "Connected") {
+                                Toast.makeText(context, "Sem ligação — tenta outra vez", Toast.LENGTH_SHORT).show()
+                            } else {
+                                relay.requestInvite()
+                                Toast.makeText(context, "A gerar convite…", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                    ) {
+                        Icon(Icons.Default.AddLink, null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("GERAR CONVITE (1 QR)")
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { showSuggestDialog = true }
@@ -800,7 +824,7 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showInviteDialog = null },
             confirmButton = { TextButton(onClick = { showInviteDialog = null }) { Text("Close") } },
-            title = { Text("Invitation QR") },
+            title = { Text("Convite — 1 QR") },
             text = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     val bitmap = remember(showInviteDialog) { QrCodeGenerator.generateQrCode(showInviteDialog!!) }
@@ -812,9 +836,20 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     val isLink = showInviteDialog?.startsWith("http") == true
                     Text(
-                        if (isLink) "One-time link. Scan with a phone CAMERA (outside the app) to install & auto-join."
+                        if (isLink) "Scan com a câmara do telefone (fora da app). Instala e autoriza sozinho — sem segundo QR e sem aprovação manual."
                         else "Scan this code to join the network.",
                         textAlign = TextAlign.Center, style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        if (tier == UserTier.REFERRER)
+                            "Convite de sub-admin: o novo user fica ligado ao admin e a ti."
+                        else if (tier == UserTier.MASTER)
+                            "Convite de admin: o novo user fica ligado só ao admin."
+                        else "",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     if (isLink) {
                         Spacer(modifier = Modifier.height(8.dp))
